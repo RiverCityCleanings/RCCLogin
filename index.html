@@ -1,0 +1,570 @@
+import { useState, useEffect } from "react";
+
+const PASSWORD = "KeepThisShitClean@nolies";
+
+const DEFAULT_TEAM = [
+  { id: 1, name: "Michael LaCour", cut: 33.34 },
+  { id: 2, name: "Marshall Mike", cut: 33.33 },
+  { id: 3, name: "Edward LaCour", cut: 33.33 },
+];
+
+const DEFAULT_STOCK = [
+  { id: 1, name: "Microfiber cloths", qty: 0, unit: "cloths", low: 5 },
+  { id: 2, name: "Dusters", qty: 0, unit: "pcs", low: 2 },
+  { id: 3, name: "Sprayers", qty: 0, unit: "sprayers", low: 2 },
+  { id: 4, name: "Garbage bags", qty: 0, unit: "bags", low: 10 },
+  { id: 5, name: "Brooms", qty: 0, unit: "brooms", low: 1 },
+  { id: 6, name: "Dustpans", qty: 0, unit: "dustpans", low: 1 },
+  { id: 7, name: "Mops", qty: 0, unit: "mops", low: 1 },
+  { id: 8, name: "Mop buckets", qty: 0, unit: "buckets", low: 1 },
+  { id: 9, name: "Cleaning solution", qty: 0, unit: "bottles", low: 2 },
+  { id: 10, name: "Extension cords", qty: 0, unit: "cords", low: 1 },
+  { id: 11, name: "Vacuum filters", qty: 0, unit: "pcs", low: 2 },
+  { id: 12, name: "Paper towels", qty: 0, unit: "rolls", low: 4 },
+];
+
+async function sGet(key, fallback) {
+  try {
+    const r = await window.storage.get(key, false);
+    return JSON.parse(r.value);
+  } catch { return fallback; }
+}
+
+async function sSet(key, val) {
+  try { await window.storage.set(key, JSON.stringify(val), false); } catch {}
+}
+
+const Card = ({ children, style = {} }) => (
+  <div style={{
+    background: "var(--color-background-primary)",
+    border: "0.5px solid var(--color-border-tertiary)",
+    borderRadius: "var(--border-radius-lg)",
+    padding: "1.25rem",
+    marginBottom: "1rem",
+    ...style,
+  }}>{children}</div>
+);
+
+const Label = ({ children }) => (
+  <p style={{ fontSize: 12, color: "var(--color-text-secondary)", margin: "0 0 4px", userSelect: "none" }}>{children}</p>
+);
+
+export default function App() {
+  const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
+  const [tab, setTab] = useState("revenue");
+  const [entries, setEntries] = useState([]);
+  const [team, setTeam] = useState(DEFAULT_TEAM);
+  const [stock, setStock] = useState(DEFAULT_STOCK);
+
+  const [pw, setPw] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [pwErr, setPwErr] = useState("");
+
+  const [amount, setAmount] = useState("");
+  const [note, setNote] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+
+  const [newName, setNewName] = useState("");
+  const [newCut, setNewCut] = useState("");
+
+  const [stkName, setStkName] = useState("");
+  const [stkUnit, setStkUnit] = useState("");
+  const [stkLow, setStkLow] = useState("1");
+
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const [e, t, s, a] = await Promise.all([
+        sGet("rcc:entries", []),
+        sGet("rcc:team", DEFAULT_TEAM),
+        sGet("rcc:stock", DEFAULT_STOCK),
+        sGet("rcc:authed", false),
+      ]);
+      setEntries(e);
+      setTeam(t);
+      setStock(s);
+      setAuthed(a);
+      setLoading(false);
+    })();
+  }, []);
+
+  const notify = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2200);
+  };
+
+  const login = () => {
+    if (pw === PASSWORD) {
+      setAuthed(true);
+      sSet("rcc:authed", true);
+      setPwErr("");
+    } else {
+      setPwErr("Incorrect password.");
+    }
+  };
+
+  const logout = () => {
+    setAuthed(false);
+    sSet("rcc:authed", false);
+    setPw("");
+  };
+
+  const total = entries.reduce((s, e) => s + e.amount, 0);
+
+  const addEntry = () => {
+    const amt = parseFloat(amount);
+    if (!amt || amt <= 0) { notify("Enter a valid dollar amount"); return; }
+    const entry = { id: Date.now(), amount: amt, note: note.trim() || "Job payment", date };
+    const updated = [entry, ...entries];
+    setEntries(updated);
+    sSet("rcc:entries", updated);
+    setAmount("");
+    setNote("");
+    notify(`Added $${amt.toFixed(2)}`);
+  };
+
+  const removeEntry = (id) => {
+    const updated = entries.filter(e => e.id !== id);
+    setEntries(updated);
+    sSet("rcc:entries", updated);
+    notify("Entry removed");
+  };
+
+  const totalCut = team.reduce((s, m) => s + m.cut, 0);
+
+  const addMember = () => {
+    if (!newName.trim()) return;
+    const m = { id: Date.now(), name: newName.trim(), cut: parseFloat(newCut) || 0 };
+    const updated = [...team, m];
+    setTeam(updated);
+    sSet("rcc:team", updated);
+    setNewName("");
+    setNewCut("");
+    notify("Member added");
+  };
+
+  const removeMember = (id) => {
+    const updated = team.filter(m => m.id !== id);
+    setTeam(updated);
+    sSet("rcc:team", updated);
+    notify("Member removed");
+  };
+
+  const updateMember = (id, field, val) => {
+    const updated = team.map(m =>
+      m.id === id ? { ...m, [field]: field === "cut" ? (parseFloat(val) || 0) : val } : m
+    );
+    setTeam(updated);
+    sSet("rcc:team", updated);
+  };
+
+  const adjustQty = (id, delta) => {
+    const updated = stock.map(s => s.id === id ? { ...s, qty: Math.max(0, s.qty + delta) } : s);
+    setStock(updated);
+    sSet("rcc:stock", updated);
+  };
+
+  const setQtyDirect = (id, val) => {
+    const updated = stock.map(s => s.id === id ? { ...s, qty: Math.max(0, parseInt(val) || 0) } : s);
+    setStock(updated);
+    sSet("rcc:stock", updated);
+  };
+
+  const addStockItem = () => {
+    if (!stkName.trim()) return;
+    const item = { id: Date.now(), name: stkName.trim(), qty: 0, unit: stkUnit.trim() || "pcs", low: parseInt(stkLow) || 1 };
+    const updated = [...stock, item];
+    setStock(updated);
+    sSet("rcc:stock", updated);
+    setStkName(""); setStkUnit(""); setStkLow("1");
+    notify("Item added");
+  };
+
+  const removeStockItem = (id) => {
+    const updated = stock.filter(s => s.id !== id);
+    setStock(updated);
+    sSet("rcc:stock", updated);
+  };
+
+  if (loading) return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh" }}>
+      <p style={{ color: "var(--color-text-secondary)", fontSize: 14 }}>Loading...</p>
+    </div>
+  );
+
+  if (!authed) return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "70vh", padding: "2rem" }}>
+      <div style={{ width: "100%", maxWidth: 340 }}>
+        <div style={{ textAlign: "center", marginBottom: "1.75rem" }}>
+          <i className="ti ti-wash" style={{ fontSize: 36, color: "var(--color-text-primary)" }} aria-hidden="true" />
+          <h1 style={{ fontSize: 20, fontWeight: 500, margin: "0.5rem 0 0.2rem", color: "var(--color-text-primary)" }}>River City Cleaners</h1>
+          <p style={{ fontSize: 13, color: "var(--color-text-secondary)", margin: 0 }}>Business dashboard · sign in to continue</p>
+        </div>
+        <Card>
+          <Label>Password</Label>
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPw ? "text" : "password"}
+              value={pw}
+              onChange={e => { setPw(e.target.value); setPwErr(""); }}
+              onKeyDown={e => e.key === "Enter" && login()}
+              placeholder="Enter password"
+              style={{ width: "100%", paddingRight: 40 }}
+              autoFocus
+            />
+            <button
+              onClick={() => setShowPw(!showPw)}
+              style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--color-text-secondary)", padding: 0, display: "flex", alignItems: "center" }}
+              aria-label={showPw ? "Hide password" : "Show password"}
+            >
+              <i className={`ti ti-${showPw ? "eye-off" : "eye"}`} style={{ fontSize: 16 }} aria-hidden="true" />
+            </button>
+          </div>
+          {pwErr && <p style={{ color: "var(--color-text-danger)", fontSize: 13, margin: "6px 0 0" }}>{pwErr}</p>}
+          <button onClick={login} style={{ width: "100%", marginTop: "0.85rem" }}>Log in</button>
+        </Card>
+      </div>
+    </div>
+  );
+
+  const TABS = [
+    ["revenue", "ti-cash", "Revenue"],
+    ["stock", "ti-package", "Stock"],
+    ["team", "ti-users", "Team"],
+  ];
+
+  const cutOk = Math.abs(totalCut - 100) < 0.05;
+
+  return (
+    <div style={{ fontFamily: "var(--font-sans)", minHeight: "100vh" }}>
+      <h2 className="sr-only">River City Cleaners business dashboard</h2>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.85rem 1.25rem", borderBottom: "0.5px solid var(--color-border-tertiary)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <i className="ti ti-wash" style={{ fontSize: 20, color: "var(--color-text-primary)" }} aria-hidden="true" />
+          <div>
+            <p style={{ fontSize: 15, fontWeight: 500, margin: 0, lineHeight: 1.2, color: "var(--color-text-primary)" }}>River City Cleaners</p>
+            <p style={{ fontSize: 11, color: "var(--color-text-secondary)", margin: 0, textTransform: "uppercase", letterSpacing: "0.06em" }}>Business dashboard</p>
+          </div>
+        </div>
+        <button onClick={logout} style={{ fontSize: 13 }}>
+          <i className="ti ti-logout" style={{ fontSize: 14, verticalAlign: "-2px", marginRight: 4 }} aria-hidden="true" />
+          Log out
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: "flex", borderBottom: "0.5px solid var(--color-border-tertiary)", padding: "0 1.25rem" }}>
+        {TABS.map(([id, icon, label]) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            style={{
+              padding: "10px 14px", border: "none",
+              borderBottom: `2px solid ${tab === id ? "var(--color-text-primary)" : "transparent"}`,
+              background: "none", cursor: "pointer", fontSize: 14,
+              fontWeight: tab === id ? 500 : 400,
+              color: tab === id ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+              display: "flex", alignItems: "center", gap: 6,
+            }}
+          >
+            <i className={`ti ${icon}`} style={{ fontSize: 15 }} aria-hidden="true" />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ padding: "1.25rem", maxWidth: 700, margin: "0 auto" }}>
+
+        {/* Toast (in-flow at top) */}
+        {toast && (
+          <div style={{
+            background: "var(--color-background-success)",
+            border: "0.5px solid var(--color-border-success)",
+            borderRadius: "var(--border-radius-md)",
+            padding: "10px 14px", fontSize: 13,
+            color: "var(--color-text-success)",
+            marginBottom: "1rem",
+            display: "flex", alignItems: "center", gap: 8,
+          }}>
+            <i className="ti ti-circle-check" style={{ fontSize: 16 }} aria-hidden="true" />
+            {toast}
+          </div>
+        )}
+
+        {/* ── REVENUE TAB ── */}
+        {tab === "revenue" && (
+          <div>
+            {/* Summary cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 10, marginBottom: "1.25rem" }}>
+              <div style={{ background: "var(--color-background-secondary)", borderRadius: "var(--border-radius-md)", padding: "0.9rem 1rem" }}>
+                <p style={{ fontSize: 12, color: "var(--color-text-secondary)", margin: "0 0 4px", textTransform: "uppercase", letterSpacing: "0.06em" }}>Total earned</p>
+                <p style={{ fontSize: 26, fontWeight: 500, margin: 0, color: "var(--color-text-primary)" }}>${total.toFixed(2)}</p>
+                <p style={{ fontSize: 12, color: "var(--color-text-secondary)", margin: "4px 0 0" }}>{entries.length} job{entries.length !== 1 ? "s" : ""}</p>
+              </div>
+              {team.map(m => (
+                <div key={m.id} style={{ background: "var(--color-background-secondary)", borderRadius: "var(--border-radius-md)", padding: "0.9rem 1rem" }}>
+                  <p style={{ fontSize: 12, color: "var(--color-text-secondary)", margin: "0 0 4px", textTransform: "uppercase", letterSpacing: "0.06em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {m.name.split(" ")[0]}'s cut
+                  </p>
+                  <p style={{ fontSize: 26, fontWeight: 500, margin: 0, color: "var(--color-text-primary)" }}>${(total * m.cut / 100).toFixed(2)}</p>
+                  <p style={{ fontSize: 12, color: "var(--color-text-secondary)", margin: "4px 0 0" }}>{m.cut}%</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Add revenue */}
+            <Card>
+              <p style={{ fontSize: 15, fontWeight: 500, margin: "0 0 1rem", color: "var(--color-text-primary)" }}>Add revenue</p>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
+                <div style={{ flex: "0 0 105px" }}>
+                  <Label>Amount ($)</Label>
+                  <input
+                    type="number"
+                    value={amount}
+                    onChange={e => setAmount(e.target.value)}
+                    placeholder="40"
+                    min="0"
+                    step="0.01"
+                    style={{ width: "100%" }}
+                    onKeyDown={e => e.key === "Enter" && addEntry()}
+                  />
+                </div>
+                <div style={{ flex: "0 0 140px" }}>
+                  <Label>Date</Label>
+                  <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ width: "100%" }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 130 }}>
+                  <Label>Note (optional)</Label>
+                  <input
+                    type="text"
+                    value={note}
+                    onChange={e => setNote(e.target.value)}
+                    placeholder="House clean on Oak St"
+                    onKeyDown={e => e.key === "Enter" && addEntry()}
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                <button onClick={addEntry}>
+                  <i className="ti ti-plus" style={{ fontSize: 14, verticalAlign: "-2px", marginRight: 4 }} aria-hidden="true" />
+                  Add
+                </button>
+              </div>
+            </Card>
+
+            {/* History */}
+            <Card>
+              <p style={{ fontSize: 15, fontWeight: 500, margin: "0 0 1rem", color: "var(--color-text-primary)" }}>Revenue history</p>
+              {entries.length === 0 ? (
+                <p style={{ color: "var(--color-text-secondary)", fontSize: 14, margin: 0 }}>No revenue recorded yet. Add your first job above.</p>
+              ) : entries.map((e, i) => (
+                <div key={e.id} style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  padding: "0.65rem 0",
+                  borderTop: i > 0 ? "0.5px solid var(--color-border-tertiary)" : "none",
+                }}>
+                  <div>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: "var(--color-text-primary)" }}>{e.note}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: "var(--color-text-secondary)" }}>{e.date}</p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <p style={{ margin: 0, fontSize: 16, fontWeight: 500, color: "var(--color-text-primary)" }}>${e.amount.toFixed(2)}</p>
+                    <button
+                      onClick={() => removeEntry(e.id)}
+                      style={{ background: "none", border: "0.5px solid var(--color-border-secondary)", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-danger)", padding: 0, flexShrink: 0 }}
+                      aria-label="Remove entry"
+                    >
+                      <i className="ti ti-x" style={{ fontSize: 13 }} aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </Card>
+          </div>
+        )}
+
+        {/* ── STOCK TAB ── */}
+        {tab === "stock" && (
+          <div>
+            <Card>
+              <p style={{ fontSize: 15, fontWeight: 500, margin: "0 0 1rem", color: "var(--color-text-primary)" }}>Add supply item</p>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
+                <div style={{ flex: 2, minWidth: 130 }}>
+                  <Label>Item name</Label>
+                  <input type="text" value={stkName} onChange={e => setStkName(e.target.value)} placeholder="e.g. Sponges" style={{ width: "100%" }} onKeyDown={e => e.key === "Enter" && addStockItem()} />
+                </div>
+                <div style={{ flex: 1, minWidth: 70 }}>
+                  <Label>Unit</Label>
+                  <input type="text" value={stkUnit} onChange={e => setStkUnit(e.target.value)} placeholder="pcs" style={{ width: "100%" }} />
+                </div>
+                <div style={{ flex: "0 0 80px" }}>
+                  <Label>Low at</Label>
+                  <input type="number" value={stkLow} onChange={e => setStkLow(e.target.value)} min="0" style={{ width: "100%" }} />
+                </div>
+                <button onClick={addStockItem}>
+                  <i className="ti ti-plus" style={{ fontSize: 14, verticalAlign: "-2px", marginRight: 4 }} aria-hidden="true" />
+                  Add
+                </button>
+              </div>
+            </Card>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(155px, 1fr))", gap: 10 }}>
+              {stock.map(item => {
+                const isEmpty = item.qty === 0;
+                const isLow = !isEmpty && item.qty <= item.low;
+                return (
+                  <div key={item.id} style={{
+                    background: "var(--color-background-primary)",
+                    border: `0.5px solid ${isEmpty ? "var(--color-border-danger)" : isLow ? "var(--color-border-warning)" : "var(--color-border-tertiary)"}`,
+                    borderRadius: "var(--border-radius-lg)",
+                    padding: "0.9rem",
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                      <p style={{ fontSize: 13, fontWeight: 500, margin: 0, lineHeight: 1.3, flex: 1, paddingRight: 4, color: "var(--color-text-primary)" }}>{item.name}</p>
+                      <button
+                        onClick={() => removeStockItem(item.id)}
+                        style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-secondary)", padding: 0, flexShrink: 0, lineHeight: 1 }}
+                        aria-label={`Remove ${item.name}`}
+                      >
+                        <i className="ti ti-x" style={{ fontSize: 13 }} aria-hidden="true" />
+                      </button>
+                    </div>
+                    {isEmpty && (
+                      <p style={{ fontSize: 11, color: "var(--color-text-danger)", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 4 }}>
+                        <i className="ti ti-alert-circle" style={{ fontSize: 12 }} aria-hidden="true" /> Out of stock
+                      </p>
+                    )}
+                    {isLow && (
+                      <p style={{ fontSize: 11, color: "var(--color-text-warning)", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 4 }}>
+                        <i className="ti ti-arrow-down" style={{ fontSize: 12 }} aria-hidden="true" /> Low stock
+                      </p>
+                    )}
+                    <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 6 }}>
+                      <button
+                        onClick={() => adjustQty(item.id, -1)}
+                        style={{ width: 28, height: 28, border: "0.5px solid var(--color-border-secondary)", borderRadius: "var(--border-radius-md)", background: "var(--color-background-secondary)", cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0, color: "var(--color-text-primary)" }}
+                        aria-label="Decrease"
+                      >−</button>
+                      <input
+                        type="number"
+                        value={item.qty}
+                        onChange={e => setQtyDirect(item.id, e.target.value)}
+                        min="0"
+                        style={{ width: 52, textAlign: "center", fontWeight: 500, padding: "4px 6px" }}
+                        aria-label={`${item.name} quantity`}
+                      />
+                      <button
+                        onClick={() => adjustQty(item.id, 1)}
+                        style={{ width: 28, height: 28, border: "0.5px solid var(--color-border-secondary)", borderRadius: "var(--border-radius-md)", background: "var(--color-background-secondary)", cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0, color: "var(--color-text-primary)" }}
+                        aria-label="Increase"
+                      >+</button>
+                    </div>
+                    <p style={{ fontSize: 11, color: "var(--color-text-secondary)", margin: 0, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                      {item.unit} · low at {item.low}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── TEAM TAB ── */}
+        {tab === "team" && (
+          <div>
+            <Card>
+              <p style={{ fontSize: 15, fontWeight: 500, margin: "0 0 1rem", color: "var(--color-text-primary)" }}>Add team member</p>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
+                <div style={{ flex: 2, minWidth: 150 }}>
+                  <Label>Name</Label>
+                  <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="Full name" style={{ width: "100%" }} onKeyDown={e => e.key === "Enter" && addMember()} />
+                </div>
+                <div style={{ flex: "0 0 100px" }}>
+                  <Label>Cut (%)</Label>
+                  <input type="number" value={newCut} onChange={e => setNewCut(e.target.value)} placeholder="33.33" min="0" max="100" style={{ width: "100%" }} />
+                </div>
+                <button onClick={addMember}>
+                  <i className="ti ti-plus" style={{ fontSize: 14, verticalAlign: "-2px", marginRight: 4 }} aria-hidden="true" />
+                  Add
+                </button>
+              </div>
+            </Card>
+
+            {/* Cut total indicator */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: 8, marginBottom: "1rem",
+              padding: "0.65rem 1rem",
+              background: cutOk ? "var(--color-background-success)" : "var(--color-background-warning)",
+              border: `0.5px solid ${cutOk ? "var(--color-border-success)" : "var(--color-border-warning)"}`,
+              borderRadius: "var(--border-radius-md)",
+            }}>
+              <i className={`ti ti-${cutOk ? "circle-check" : "alert-triangle"}`} style={{ fontSize: 16, color: cutOk ? "var(--color-text-success)" : "var(--color-text-warning)", flexShrink: 0 }} aria-hidden="true" />
+              <p style={{ margin: 0, fontSize: 13, color: cutOk ? "var(--color-text-success)" : "var(--color-text-warning)" }}>
+                Cuts total: {totalCut.toFixed(2)}%{cutOk ? " — all balanced" : " — adjust cuts to reach 100%"}
+              </p>
+            </div>
+
+            <Card>
+              <p style={{ fontSize: 15, fontWeight: 500, margin: "0 0 1rem", color: "var(--color-text-primary)" }}>Team members</p>
+              {team.length === 0 && (
+                <p style={{ color: "var(--color-text-secondary)", fontSize: 14, margin: 0 }}>No members yet. Add one above.</p>
+              )}
+              {team.map((m, i) => (
+                <div key={m.id} style={{
+                  borderTop: i > 0 ? "0.5px solid var(--color-border-tertiary)" : "none",
+                  paddingTop: i > 0 ? "1rem" : 0,
+                  marginTop: i > 0 ? "1rem" : 0,
+                }}>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
+                    <div style={{ flex: 2, minWidth: 140 }}>
+                      <Label>Name</Label>
+                      <input
+                        type="text"
+                        value={m.name}
+                        onChange={e => updateMember(m.id, "name", e.target.value)}
+                        style={{ width: "100%" }}
+                      />
+                    </div>
+                    <div style={{ flex: "0 0 90px" }}>
+                      <Label>Cut (%)</Label>
+                      <input
+                        type="number"
+                        value={m.cut}
+                        onChange={e => updateMember(m.id, "cut", e.target.value)}
+                        min="0" max="100"
+                        style={{ width: "100%" }}
+                      />
+                    </div>
+                    <div style={{ flex: "0 0 115px" }}>
+                      <Label>Share of total</Label>
+                      <div style={{
+                        padding: "8px 12px",
+                        border: "0.5px solid var(--color-border-tertiary)",
+                        borderRadius: "var(--border-radius-md)",
+                        fontSize: 14, fontWeight: 500,
+                        background: "var(--color-background-secondary)",
+                        color: "var(--color-text-primary)",
+                      }}>
+                        ${(total * m.cut / 100).toFixed(2)}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => removeMember(m.id)}
+                      style={{ color: "var(--color-text-danger)", borderColor: "var(--color-border-danger)" }}
+                    >
+                      <i className="ti ti-trash" style={{ fontSize: 14, verticalAlign: "-2px", marginRight: 4 }} aria-hidden="true" />
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </Card>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
