@@ -12,10 +12,14 @@
   --black:#0d0d0d;--white:#fafaf8;
   --gray-100:#f4f4f1;--gray-200:#e8e8e3;--gray-300:#d0d0c8;
   --gray-500:#8a8a82;--gray-700:#4a4a44;
-  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+  --green:#16a34a;--green-light:#f0fdf4;--green-border:#86efac;
+  --red:#dc2626;--red-light:#fef2f2;--red-border:#fca5a5;
+  --amber:#d97706;--amber-light:#fffbeb;--amber-border:#fcd34d;
+  --blue:#2563eb;--blue-light:#eff6ff;--blue-border:#93c5fd;
   --border:1px solid var(--gray-300);
   --radius:8px;--radius-sm:5px;
   --ff-head:'Syne',sans-serif;--ff-body:'Figtree',sans-serif;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
 }
 html,body{height:100%;font-size:16px}
 body{background:var(--gray-100);color:var(--black);font-family:var(--ff-body);font-weight:400;line-height:1.5;overflow-x:hidden}
@@ -30,8 +34,11 @@ button{cursor:pointer;font-family:var(--ff-body)}
   padding:0 1.5rem;height:60px;flex-shrink:0;
 }
 .header-brand{display:flex;align-items:center;gap:10px}
-.header-brand-icon{font-size:1.4rem}
-.header-brand-text{}
+.header-brand-icon{
+  width:32px;height:32px;background:rgba(255,255,255,.12);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+}
+.header-brand-icon svg{width:18px;height:18px;stroke:var(--white);fill:none;stroke-width:2}
 .header-brand-title{font-family:var(--ff-head);font-weight:700;font-size:.95rem;line-height:1.1}
 .header-brand-sub{font-size:.65rem;opacity:.5;text-transform:uppercase;letter-spacing:.1em}
 .btn-logout{
@@ -46,24 +53,24 @@ button{cursor:pointer;font-family:var(--ff-body)}
   padding:0 1.5rem;gap:4px;
 }
 .tab{
-  display:flex;align-items:center;gap:6px;
+  display:flex;align-items:center;gap:7px;
   padding:0 14px;height:46px;border:none;background:none;
   font-size:.85rem;color:var(--gray-500);border-bottom:2px solid transparent;
   transition:all .15s;cursor:pointer;font-family:var(--ff-body);
 }
 .tab:hover{color:var(--black)}
 .tab.active{color:var(--black);font-weight:600;border-bottom-color:var(--black)}
-.tab-icon{font-size:1rem}
+.tab-icon svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;display:block}
 
-.main{flex:1;padding:1.5rem;max-width:860px;width:100%;margin:0 auto}
+.main{flex:1;padding:1.5rem;max-width:900px;width:100%;margin:0 auto}
 
 /* ── CARDS ── */
-.card{background:var(--white);border:var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+.card{background:var(--white);border:var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)}
 .card-title{font-family:var(--ff-head);font-weight:700;font-size:.95rem;margin-bottom:1.1rem;letter-spacing:-.01em}
 
 /* ── SUMMARY GRID ── */
 .summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:1rem}
-.summary-card{background:var(--white);border:var(--border);border-radius:var(--radius);padding:1rem}
+.summary-card{background:var(--white);border:var(--border);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
 .summary-card.dark{background:var(--black);color:var(--white);border-color:var(--black)}
 .summary-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;opacity:.55;margin-bottom:.3rem}
 .summary-amount{font-family:var(--ff-head);font-size:1.9rem;font-weight:800;letter-spacing:-.04em;line-height:1}
@@ -75,6 +82,7 @@ button{cursor:pointer;font-family:var(--ff-body)}
 .form-group.grow{flex:1;min-width:120px}
 .form-group.w80{flex:0 0 80px}
 .form-group.w100{flex:0 0 100px}
+.form-group.w110{flex:0 0 110px}
 .form-group.w120{flex:0 0 120px}
 .form-group.w145{flex:0 0 145px}
 label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gray-500)}
@@ -98,15 +106,20 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 }
 .btn-primary{background:var(--black);color:var(--white)}
 .btn-primary:hover{opacity:.85}
-.btn-danger{background:transparent;color:var(--red);border:1px solid #fca5a5}
-.btn-danger:hover{background:#fef2f2}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red-border)}
+.btn-danger:hover{background:var(--red-light)}
+.btn-warn{background:transparent;color:var(--amber);border:1px solid var(--amber-border)}
+.btn-warn:hover{background:var(--amber-light)}
+.btn-ghost{background:transparent;color:var(--gray-700);border:var(--border)}
+.btn-ghost:hover{background:var(--gray-100)}
 .btn-icon{
   width:28px;height:28px;padding:0;border-radius:50%;
   display:inline-flex;align-items:center;justify-content:center;
   border:var(--border);background:transparent;color:var(--gray-500);
-  font-size:.85rem;cursor:pointer;transition:all .15s;
+  font-size:.85rem;cursor:pointer;transition:all .15s;flex-shrink:0;
 }
-.btn-icon:hover{border-color:var(--red);color:var(--red);background:#fef2f2}
+.btn-icon:hover{border-color:var(--red);color:var(--red);background:var(--red-light)}
+.btn-icon svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5}
 .btn-sm-sq{
   width:30px;height:30px;padding:0;
   display:inline-flex;align-items:center;justify-content:center;
@@ -133,16 +146,13 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 
 /* ── STOCK GRID ── */
 .stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-.stock-card{
-  border:var(--border);border-radius:var(--radius);
-  padding:.9rem;background:var(--white);
-}
-.stock-card.low{border-color:var(--amber);background:#fffbeb}
-.stock-card.empty{border-color:var(--red);background:#fef2f2}
+.stock-card{border:var(--border);border-radius:var(--radius);padding:.9rem;background:var(--white);box-shadow:var(--shadow)}
+.stock-card.low{border-color:var(--amber);background:var(--amber-light)}
+.stock-card.empty{border-color:var(--red);background:var(--red-light)}
 .stock-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem}
 .stock-name{font-size:.85rem;font-weight:600;line-height:1.3}
 .stock-alert{font-size:.7rem;margin-bottom:.6rem;display:flex;align-items:center;gap:3px;font-weight:500}
-.stock-alert.low{color:#d97706}
+.stock-alert.low{color:var(--amber)}
 .stock-alert.empty{color:var(--red)}
 .stock-controls{display:flex;align-items:center;gap:6px;margin-bottom:.5rem}
 .stock-qty{width:54px;text-align:center;font-weight:600;font-size:.95rem;padding:4px 6px}
@@ -164,9 +174,95 @@ input[type=number]::-webkit-inner-spin-button{display:none}
   padding:.6rem 1rem;border-radius:var(--radius-sm);margin-bottom:1rem;
   font-size:.82rem;font-weight:500;
 }
-.cut-banner.ok{background:#f0fdf4;border:1px solid #86efac;color:#16a34a}
-.cut-banner.warn{background:#fffbeb;border:1px solid #fcd34d;color:#b45309}
-.cut-banner-icon{font-size:1rem}
+.cut-banner.ok{background:var(--green-light);border:1px solid var(--green-border);color:var(--green)}
+.cut-banner.warn{background:var(--amber-light);border:1px solid var(--amber-border);color:var(--amber)}
+
+/* ── CALENDAR ── */
+.cal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;
+}
+.cal-month-label{font-family:var(--ff-head);font-size:1.1rem;font-weight:700;letter-spacing:-.02em}
+.cal-nav{display:flex;gap:6px}
+.btn-cal-nav{
+  width:32px;height:32px;border:var(--border);border-radius:var(--radius-sm);
+  background:var(--white);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .15s;
+}
+.btn-cal-nav:hover{background:var(--gray-100)}
+.btn-cal-nav svg{width:14px;height:14px;stroke:var(--black);fill:none;stroke-width:2.5}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{
+  text-align:center;font-size:.65rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.09em;
+  color:var(--gray-500);padding:.5rem 0;
+}
+.cal-day{
+  position:relative;min-height:72px;
+  border:1px solid var(--gray-200);border-radius:var(--radius-sm);
+  background:var(--white);cursor:pointer;padding:6px 7px;
+  transition:all .12s;
+}
+.cal-day:hover:not(.cal-day-other){border-color:var(--black);background:var(--gray-100)}
+.cal-day.cal-day-other{background:var(--gray-100);cursor:default}
+.cal-day.cal-day-other .cal-day-num{opacity:.3}
+.cal-day.cal-day-today{border-color:var(--black);border-width:2px}
+.cal-day.cal-day-selected{border-color:var(--black);border-width:2px;background:#f8f8f6}
+.cal-day.cal-day-unavail{background:#fef2f2;border-color:#fca5a5}
+.cal-day.cal-day-unavail .cal-day-num{color:var(--red)}
+.cal-day-num{
+  font-family:var(--ff-head);font-size:.82rem;font-weight:700;
+  line-height:1;margin-bottom:4px;
+}
+.cal-day-today .cal-day-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;background:var(--black);color:var(--white);
+  border-radius:50%;font-size:.72rem;
+}
+.cal-day-dots{display:flex;flex-wrap:wrap;gap:2px;margin-top:2px}
+.cal-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+}
+.cal-dot-job{background:var(--black)}
+.cal-dot-unavail{background:var(--red)}
+.cal-unavail-label{
+  font-size:.6rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--red);margin-top:3px;
+}
+.cal-job-count{
+  font-size:.65rem;font-weight:600;color:var(--gray-500);margin-top:2px;
+}
+
+/* ── DAY DETAIL PANEL ── */
+.day-panel{
+  background:var(--white);border:var(--border);border-radius:var(--radius);
+  padding:1.25rem;margin-top:.75rem;box-shadow:var(--shadow);
+  animation:slideIn .15s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.day-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;
+}
+.day-panel-title{font-family:var(--ff-head);font-size:1rem;font-weight:700}
+.day-panel-actions{display:flex;gap:6px}
+.toggle-unavail-btn{font-size:.78rem;padding:6px 12px}
+
+.cal-job-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.55rem 0;border-bottom:var(--border);
+}
+.cal-job-row:last-child{border-bottom:none}
+.cal-job-info{}
+.cal-job-desc{font-size:.88rem;font-weight:500}
+.cal-job-time{font-size:.72rem;color:var(--gray-500);margin-top:1px}
+.cal-legend{
+  display:flex;gap:1rem;align-items:center;margin-top:.75rem;padding-top:.75rem;
+  border-top:var(--border);flex-wrap:wrap;
+}
+.cal-legend-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--gray-500)}
+.cal-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 /* ── TOAST ── */
 .toast-wrap{
@@ -191,7 +287,12 @@ input[type=number]::-webkit-inner-spin-button{display:none}
   background:var(--white);border-radius:var(--radius);
   padding:2.5rem;width:100%;max-width:360px;
 }
-.login-logo{font-size:2.2rem;text-align:center;margin-bottom:.75rem}
+.login-logo{
+  width:48px;height:48px;background:var(--black);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto .85rem;
+}
+.login-logo svg{width:26px;height:26px;stroke:var(--white);fill:none;stroke-width:1.8}
 .login-title{font-family:var(--ff-head);font-size:1.3rem;font-weight:800;text-align:center;margin-bottom:.25rem}
 .login-sub{font-size:.82rem;color:var(--gray-500);text-align:center;margin-bottom:1.75rem}
 .login-field{margin-bottom:1rem}
@@ -201,8 +302,10 @@ input[type=number]::-webkit-inner-spin-button{display:none}
   position:absolute;right:10px;top:50%;transform:translateY(-50%);
   background:none;border:none;cursor:pointer;color:var(--gray-500);
   font-size:1rem;padding:0;line-height:1;
+  display:flex;align-items:center;
 }
 .btn-showpw:hover{color:var(--black)}
+.btn-showpw svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 .login-err{color:var(--red);font-size:.8rem;margin-top:.4rem}
 .btn-login{
   width:100%;background:var(--black);color:var(--white);
@@ -217,11 +320,9 @@ input[type=number]::-webkit-inner-spin-button{display:none}
   .summary-grid{grid-template-columns:1fr 1fr}
   .main{padding:1rem}
   .stock-grid{grid-template-columns:1fr 1fr}
+  .cal-day{min-height:52px;padding:4px 5px}
+  .cal-day-num{font-size:.75rem}
 }
-
-/* ── HIDDEN ── */
-.screen{display:none}
-.screen.active{display:block}
 </style>
 </head>
 <body>
@@ -229,14 +330,18 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 <!-- ══════════ LOGIN ══════════ -->
 <div id="loginScreen" class="login-wrap">
   <div class="login-box">
-    <div class="login-logo">🧹</div>
+    <div class="login-logo">
+      <svg viewBox="0 0 24 24"><path d="M3 21l1.9-5.7a8.5 8.5 0 113.8 3.8z"/></svg>
+    </div>
     <div class="login-title">River City Cleaners</div>
     <div class="login-sub">Business dashboard — owners only</div>
     <div class="login-field">
       <label style="display:block;margin-bottom:4px">Password</label>
       <div class="login-pw-wrap">
         <input type="password" id="pwInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
-        <button class="btn-showpw" onclick="togglePw()" id="eyeBtn" title="Show/hide">👁</button>
+        <button class="btn-showpw" onclick="togglePw()" title="Show/hide">
+          <svg id="eyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
       </div>
       <div class="login-err" id="loginErr" style="display:none"></div>
     </div>
@@ -249,7 +354,9 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 
   <div class="header">
     <div class="header-brand">
-      <div class="header-brand-icon">🧹</div>
+      <div class="header-brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 21l1.9-5.7a8.5 8.5 0 113.8 3.8z"/></svg>
+      </div>
       <div class="header-brand-text">
         <div class="header-brand-title">River City Cleaners</div>
         <div class="header-brand-sub">Business Dashboard</div>
@@ -259,14 +366,21 @@ input[type=number]::-webkit-inner-spin-button{display:none}
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('revenue',this)" id="tab-revenue">
-      <span class="tab-icon">💰</span> Revenue
+    <button class="tab active" onclick="switchTab('revenue',this)">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>
+      Revenue
     </button>
-    <button class="tab" onclick="switchTab('stock',this)" id="tab-stock">
-      <span class="tab-icon">📦</span> Stock
+    <button class="tab" onclick="switchTab('calendar',this)">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+      Calendar
     </button>
-    <button class="tab" onclick="switchTab('team',this)" id="tab-team">
-      <span class="tab-icon">👥</span> Team
+    <button class="tab" onclick="switchTab('stock',this)">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>
+      Stock
+    </button>
+    <button class="tab" onclick="switchTab('team',this)">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
+      Team
     </button>
   </div>
 
@@ -274,9 +388,7 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 
     <!-- ── REVENUE ── -->
     <div id="panel-revenue">
-
       <div class="summary-grid" id="summaryGrid"></div>
-
       <div class="card">
         <div class="card-title">Add revenue</div>
         <div class="form-row">
@@ -295,11 +407,35 @@ input[type=number]::-webkit-inner-spin-button{display:none}
           <button class="btn btn-primary" onclick="addEntry()">+ Add</button>
         </div>
       </div>
-
       <div class="card">
         <div class="card-title">Revenue history</div>
         <div id="entryList" class="entry-list"></div>
       </div>
+    </div>
+
+    <!-- ── CALENDAR ── -->
+    <div id="panel-calendar" style="display:none">
+      <div class="card">
+        <div class="cal-header">
+          <div class="cal-month-label" id="calMonthLabel"></div>
+          <div class="cal-nav">
+            <button class="btn-cal-nav" onclick="calNav(-1)" title="Previous month">
+              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="btn-cal-nav" onclick="calNav(0)" title="Today" style="width:auto;padding:0 10px;font-size:.75rem;font-weight:600;font-family:var(--ff-body)">Today</button>
+            <button class="btn-cal-nav" onclick="calNav(1)" title="Next month">
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--black)"></div> Job scheduled</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--red)"></div> Unavailable</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:transparent;border:2px solid var(--black);width:8px;height:8px;border-radius:50%"></div> Today</div>
+        </div>
+      </div>
+      <div id="dayPanel"></div>
     </div>
 
     <!-- ── STOCK ── -->
@@ -356,7 +492,7 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 
 <script>
 const PASSWORD = "KeepThisShitClean@nolies";
-const KEYS = { entries:"rcc_entries", team:"rcc_team", stock:"rcc_stock", authed:"rcc_authed" };
+const KEYS = { entries:"rcc_entries", team:"rcc_team", stock:"rcc_stock", authed:"rcc_authed", cal:"rcc_cal" };
 
 const DEFAULT_TEAM = [
   {id:1,name:"Michael LaCour",cut:33.34},
@@ -381,9 +517,11 @@ const DEFAULT_STOCK = [
 function load(key,fallback){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback}catch{return fallback}}
 function save(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch{}}
 
-let entries=load(KEYS.entries,[]);
-let team=load(KEYS.team,DEFAULT_TEAM);
-let stock=load(KEYS.stock,DEFAULT_STOCK);
+let entries = load(KEYS.entries,[]);
+let team    = load(KEYS.team, DEFAULT_TEAM);
+let stock   = load(KEYS.stock, DEFAULT_STOCK);
+// cal: { "YYYY-MM-DD": { unavail: bool, jobs: [{id, desc, time}] } }
+let calData = load(KEYS.cal, {});
 
 // ── AUTH ──
 function doLogin(){
@@ -418,12 +556,13 @@ function switchTab(tab,btn){
   activeTab=tab;
   document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
-  ["revenue","stock","team"].forEach(t=>{
+  ["revenue","calendar","stock","team"].forEach(t=>{
     document.getElementById("panel-"+t).style.display=t===tab?"block":"none";
   });
-  if(tab==="revenue")renderRevenue();
-  if(tab==="stock")renderStock();
-  if(tab==="team")renderTeam();
+  if(tab==="revenue")  renderRevenue();
+  if(tab==="calendar") renderCalendar();
+  if(tab==="stock")    renderStock();
+  if(tab==="team")     renderTeam();
 }
 
 // ── TOAST ──
@@ -438,11 +577,7 @@ function showToast(msg){
 
 // ── REVENUE ──
 function getTotal(){return entries.reduce((s,e)=>s+e.amount,0)}
-
-function renderRevenue(){
-  renderSummary();
-  renderEntries();
-}
+function renderRevenue(){renderSummary();renderEntries();}
 
 function renderSummary(){
   const total=getTotal();
@@ -472,7 +607,9 @@ function renderEntries(){
       </div>
       <div class="entry-right">
         <div class="entry-amount">$${e.amount.toFixed(2)}</div>
-        <button class="btn-icon" onclick="removeEntry(${e.id})" title="Remove entry">✕</button>
+        <button class="btn-icon" onclick="removeEntry(${e.id})" title="Remove entry">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
     </div>
   `).join("");
@@ -483,20 +620,192 @@ function addEntry(){
   if(!amt||amt<=0){showToast("Enter a valid dollar amount");return}
   const note=document.getElementById("addNote").value.trim()||"Job payment";
   const date=document.getElementById("addDate").value||today();
-  const entry={id:Date.now(),amount:amt,note,date};
-  entries=[entry,...entries];
+  entries=[{id:Date.now(),amount:amt,note,date},...entries];
   save(KEYS.entries,entries);
   document.getElementById("addAmount").value="";
   document.getElementById("addNote").value="";
   renderRevenue();
   showToast(`Added $${amt.toFixed(2)}`);
 }
-
 function removeEntry(id){
   entries=entries.filter(e=>e.id!==id);
   save(KEYS.entries,entries);
   renderRevenue();
   showToast("Entry removed");
+}
+
+// ── CALENDAR ──
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-based
+let selectedDay = null; // "YYYY-MM-DD"
+
+const MONTHS = ["January","February","March","April","May","June",
+                "July","August","September","October","November","December"];
+const DAYS   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+function calNav(dir){
+  if(dir===0){ calYear=new Date().getFullYear(); calMonth=new Date().getMonth(); }
+  else { calMonth+=dir; if(calMonth<0){calMonth=11;calYear--;}else if(calMonth>11){calMonth=0;calYear++;} }
+  selectedDay=null;
+  document.getElementById("dayPanel").innerHTML="";
+  renderCalendar();
+}
+
+function renderCalendar(){
+  document.getElementById("calMonthLabel").textContent=`${MONTHS[calMonth]} ${calYear}`;
+  const grid=document.getElementById("calGrid");
+
+  const todayStr=today();
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const daysInPrev =new Date(calYear,calMonth,0).getDate();
+
+  let html=DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join("");
+
+  // Prev month filler
+  for(let i=0;i<firstDay;i++){
+    const d=daysInPrev-firstDay+i+1;
+    html+=`<div class="cal-day cal-day-other"><div class="cal-day-num">${d}</div></div>`;
+  }
+
+  // Current month days
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=dateStr(calYear,calMonth,d);
+    const dayData=calData[ds]||{};
+    const isToday=ds===todayStr;
+    const isSelected=ds===selectedDay;
+    const isUnavail=!!dayData.unavail;
+    const jobs=dayData.jobs||[];
+
+    let cls="cal-day";
+    if(isToday)    cls+=" cal-day-today";
+    if(isSelected) cls+=" cal-day-selected";
+    if(isUnavail)  cls+=" cal-day-unavail";
+
+    let inner=`<div class="cal-day-num">${d}</div>`;
+    if(isUnavail) inner+=`<div class="cal-unavail-label">Unavailable</div>`;
+    if(jobs.length>0){
+      inner+=`<div class="cal-job-count">${jobs.length} job${jobs.length!==1?"s":""}</div>`;
+      inner+=`<div class="cal-day-dots">${jobs.map(()=>'<div class="cal-dot cal-dot-job"></div>').join("")}</div>`;
+    }
+
+    html+=`<div class="${cls}" onclick="selectDay('${ds}')" title="${ds}">${inner}</div>`;
+  }
+
+  // Next month filler
+  const total=firstDay+daysInMonth;
+  const remainder=total%7===0?0:7-(total%7);
+  for(let i=1;i<=remainder;i++){
+    html+=`<div class="cal-day cal-day-other"><div class="cal-day-num">${i}</div></div>`;
+  }
+
+  grid.innerHTML=html;
+}
+
+function selectDay(ds){
+  selectedDay=ds;
+  renderCalendar();
+  renderDayPanel(ds);
+}
+
+function renderDayPanel(ds){
+  const panel=document.getElementById("dayPanel");
+  const dayData=calData[ds]||{unavail:false,jobs:[]};
+  const jobs=dayData.jobs||[];
+  const isUnavail=!!dayData.unavail;
+
+  const dateObj=new Date(ds+"T12:00:00");
+  const label=dateObj.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+
+  let jobsHtml=jobs.length===0
+    ?'<div class="empty" style="padding:.4rem 0">No jobs scheduled for this day.</div>'
+    :jobs.map(j=>`
+      <div class="cal-job-row">
+        <div class="cal-job-info">
+          <div class="cal-job-desc">${esc(j.desc)}</div>
+          ${j.time?`<div class="cal-job-time">${esc(j.time)}</div>`:""}
+        </div>
+        <button class="btn-icon" onclick="removeCalJob('${ds}',${j.id})" title="Remove job">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`).join("");
+
+  panel.innerHTML=`
+    <div class="day-panel">
+      <div class="day-panel-header">
+        <div class="day-panel-title">${label}</div>
+        <div class="day-panel-actions">
+          <button class="btn toggle-unavail-btn ${isUnavail?'btn-ghost':'btn-warn'}"
+            onclick="toggleUnavail('${ds}')">
+            ${isUnavail?"Mark Available":"Mark Unavailable"}
+          </button>
+        </div>
+      </div>
+
+      ${isUnavail?`<div style="padding:.5rem .85rem;background:var(--red-light);border:1px solid var(--red-border);border-radius:var(--radius-sm);font-size:.82rem;color:var(--red);font-weight:500;margin-bottom:1rem">
+        This day is marked as unavailable.
+      </div>`:""}
+
+      <div style="margin-bottom:.85rem">
+        <div class="card-title" style="margin-bottom:.7rem">Scheduled jobs</div>
+        <div id="dayJobList">${jobsHtml}</div>
+      </div>
+
+      <div style="border-top:var(--border);padding-top:.85rem">
+        <div class="card-title" style="margin-bottom:.6rem;font-size:.82rem">Add a job</div>
+        <div class="form-row">
+          <div class="form-group grow">
+            <label>Description</label>
+            <input type="text" id="calJobDesc" placeholder="e.g. House clean on Oak St"
+              onkeydown="if(event.key==='Enter')addCalJob('${ds}')">
+          </div>
+          <div class="form-group w110">
+            <label>Time (optional)</label>
+            <input type="time" id="calJobTime">
+          </div>
+          <button class="btn btn-primary" onclick="addCalJob('${ds}')">+ Add Job</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function toggleUnavail(ds){
+  if(!calData[ds]) calData[ds]={unavail:false,jobs:[]};
+  calData[ds].unavail=!calData[ds].unavail;
+  save(KEYS.cal,calData);
+  renderCalendar();
+  renderDayPanel(ds);
+  showToast(calData[ds].unavail?"Marked unavailable":"Marked available");
+}
+
+function addCalJob(ds){
+  const desc=document.getElementById("calJobDesc").value.trim();
+  if(!desc){showToast("Enter a job description");return}
+  const timeVal=document.getElementById("calJobTime").value;
+  const timeLabel=timeVal?formatTime(timeVal):"";
+  if(!calData[ds]) calData[ds]={unavail:false,jobs:[]};
+  if(!calData[ds].jobs) calData[ds].jobs=[];
+  calData[ds].jobs.push({id:Date.now(),desc,time:timeLabel});
+  save(KEYS.cal,calData);
+  renderCalendar();
+  renderDayPanel(ds);
+  showToast("Job added to calendar");
+}
+
+function removeCalJob(ds,id){
+  if(!calData[ds]) return;
+  calData[ds].jobs=calData[ds].jobs.filter(j=>j.id!==id);
+  save(KEYS.cal,calData);
+  renderCalendar();
+  renderDayPanel(ds);
+  showToast("Job removed");
+}
+
+function formatTime(t){
+  const [h,m]=t.split(":").map(Number);
+  const ampm=h>=12?"PM":"AM";
+  const hr=h%12||12;
+  return `${hr}:${String(m).padStart(2,"0")} ${ampm}`;
 }
 
 // ── STOCK ──
@@ -508,34 +817,33 @@ function renderStock(){
     const isLow=!isEmpty&&item.qty<=item.low;
     const cls=isEmpty?"empty":isLow?"low":"";
     const alert=isEmpty
-      ?'<div class="stock-alert empty">⚠ Out of stock</div>'
-      :isLow?'<div class="stock-alert low">↓ Low stock</div>':"";
-    return `<div class="stock-card ${cls}" id="sc-${item.id}">
+      ?'<div class="stock-alert empty">Out of stock</div>'
+      :isLow?'<div class="stock-alert low">Low stock</div>':"";
+    return `<div class="stock-card ${cls}">
       <div class="stock-card-top">
         <div class="stock-name">${esc(item.name)}</div>
-        <button class="btn-icon" style="flex-shrink:0;width:22px;height:22px;font-size:.7rem" onclick="removeStockItem(${item.id})" title="Remove">✕</button>
+        <button class="btn-icon" style="width:22px;height:22px;font-size:.7rem" onclick="removeStockItem(${item.id})" title="Remove">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
       ${alert}
       <div class="stock-controls">
-        <button class="btn-sm-sq" onclick="adjustQty(${item.id},-1)">−</button>
-        <input class="stock-qty" type="number" value="${item.qty}" min="0" onchange="setQtyDirect(${item.id},this.value)" style="flex-shrink:0">
+        <button class="btn-sm-sq" onclick="adjustQty(${item.id},-1)">&#8722;</button>
+        <input class="stock-qty" type="number" value="${item.qty}" min="0" onchange="setQtyDirect(${item.id},this.value)">
         <button class="btn-sm-sq" onclick="adjustQty(${item.id},1)">+</button>
       </div>
-      <div class="stock-unit">${esc(item.unit)} · low at ${item.low}</div>
+      <div class="stock-unit">${esc(item.unit)} &middot; low at ${item.low}</div>
     </div>`;
   }).join("");
 }
 
 function adjustQty(id,delta){
   stock=stock.map(s=>s.id===id?{...s,qty:Math.max(0,s.qty+delta)}:s);
-  save(KEYS.stock,stock);
-  renderStock();
+  save(KEYS.stock,stock);renderStock();
 }
 function setQtyDirect(id,val){
   stock=stock.map(s=>s.id===id?{...s,qty:Math.max(0,parseInt(val)||0)}:s);
-  save(KEYS.stock,stock);
-  // re-render to update colors
-  renderStock();
+  save(KEYS.stock,stock);renderStock();
 }
 function addStockItem(){
   const name=document.getElementById("stkName").value.trim();
@@ -547,14 +855,11 @@ function addStockItem(){
   document.getElementById("stkName").value="";
   document.getElementById("stkUnit").value="";
   document.getElementById("stkLow").value="1";
-  renderStock();
-  showToast("Item added");
+  renderStock();showToast("Item added");
 }
 function removeStockItem(id){
   stock=stock.filter(s=>s.id!==id);
-  save(KEYS.stock,stock);
-  renderStock();
-  showToast("Item removed");
+  save(KEYS.stock,stock);renderStock();showToast("Item removed");
 }
 
 // ── TEAM ──
@@ -565,7 +870,7 @@ function renderTeam(){
   const banner=document.getElementById("cutBanner");
   banner.style.display="flex";
   banner.className="cut-banner "+(ok?"ok":"warn");
-  banner.innerHTML=`<span class="cut-banner-icon">${ok?"✅":"⚠️"}</span>
+  banner.innerHTML=`<span>${ok?"Cuts balanced":"Warning"}</span>
     Cuts total: ${totalCut.toFixed(2)}%${ok?" — balanced":" — should add up to 100%"}`;
 
   const el=document.getElementById("memberList");
@@ -584,7 +889,7 @@ function renderTeam(){
         ${i===0?'<label>Share of total</label>':''}
         <div class="share-display">$${(total*m.cut/100).toFixed(2)}</div>
       </div>
-      <button class="btn btn-danger" onclick="removeMember(${m.id})" style="align-self:flex-end">🗑 Remove</button>
+      <button class="btn btn-danger" onclick="removeMember(${m.id})" style="align-self:flex-end">Remove</button>
     </div>
   `).join("");
 }
@@ -597,26 +902,20 @@ function addMember(){
   save(KEYS.team,team);
   document.getElementById("newMemberName").value="";
   document.getElementById("newMemberCut").value="";
-  renderTeam();
-  renderSummary();
-  showToast("Member added");
+  renderTeam();renderSummary();showToast("Member added");
 }
 function removeMember(id){
   team=team.filter(m=>m.id!==id);
-  save(KEYS.team,team);
-  renderTeam();
-  renderSummary();
-  showToast("Member removed");
+  save(KEYS.team,team);renderTeam();renderSummary();showToast("Member removed");
 }
 function updateMember(id,field,val){
   team=team.map(m=>m.id===id?{...m,[field]:field==="cut"?(parseFloat(val)||0):val}:m);
-  save(KEYS.team,team);
-  renderTeam();
-  renderSummary();
+  save(KEYS.team,team);renderTeam();renderSummary();
 }
 
 // ── UTILS ──
 function today(){return new Date().toISOString().split("T")[0]}
+function dateStr(y,m,d){return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`}
 function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
 
 // ── INIT ──
